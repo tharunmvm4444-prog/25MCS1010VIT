@@ -117,3 +117,91 @@ Example:
 
 ```http
 GET /api/v1/notifications?page=1&limit=20
+
+# Stage 5
+
+## Problems in Existing Implementation
+
+The current implementation has several issues:
+
+1. Sequential processing is slow
+2. Failure handling is weak
+3. No retry mechanism
+4. Email API failures can stop processing
+5. Tight coupling between DB and email service
+6. Poor scalability for 50,000 students
+
+---
+
+## What Happens if Email Fails for 200 Students?
+
+Some students may receive:
+- only database notification
+- only app notification
+- no email
+
+This creates inconsistency.
+
+---
+
+## Recommended Solution
+
+Use asynchronous event-driven architecture with message queues.
+
+Suggested tools:
+- RabbitMQ
+- Kafka
+- AWS SQS
+
+---
+
+## Improved Architecture
+
+1. API receives notify_all request
+2. Notifications are pushed into queue
+3. Worker services process jobs independently
+4. Failed jobs are retried automatically
+5. Logging and monitoring are added
+
+---
+
+## Should DB Save and Email Send Happen Together?
+
+No.
+
+Reason:
+
+- Email systems are external services
+- External APIs can fail or timeout
+- Database transactions should remain short and reliable
+
+Instead:
+1. Save notification in DB
+2. Push email task to queue
+3. Process email asynchronously
+
+---
+
+## Revised Pseudocode
+
+```python
+def notify_all(student_ids, message):
+
+    for student_id in student_ids:
+
+        save_notification_to_db(student_id, message)
+
+        publish_to_queue({
+            "student_id": student_id,
+            "message": message
+        })
+
+
+def email_worker(job):
+
+    try:
+        send_email(job["student_id"], job["message"])
+        push_to_app(job["student_id"], job["message"])
+
+    except Exception:
+        retry_job(job)
