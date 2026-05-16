@@ -84,3 +84,12 @@ ON notifications(is_read);
 
 CREATE INDEX idx_notifications_created
 ON notifications(created_at);
+
+# Stage 3
+
+## Existing Query
+
+```sql
+SELECT * FROM notifications
+WHERE studentID = 1042 AND isRead = false
+ORDER BY createdAt ASC;
