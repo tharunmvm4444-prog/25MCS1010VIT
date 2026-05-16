@@ -93,3 +93,27 @@ ON notifications(created_at);
 SELECT * FROM notifications
 WHERE studentID = 1042 AND isRead = false
 ORDER BY createdAt ASC;
+
+# Stage 4
+
+## Problem
+
+Notifications are fetched from the database on every page load for every student. This creates:
+
+- High database load
+- Slow API response
+- Poor user experience
+- Increased server cost
+
+---
+
+## Suggested Improvements
+
+### 1. Pagination
+
+Fetch notifications in smaller batches.
+
+Example:
+
+```http
+GET /api/v1/notifications?page=1&limit=20
