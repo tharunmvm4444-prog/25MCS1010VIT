@@ -32,3 +32,55 @@ Supported notification types:
 
 ```http
 GET /api/v1/notifications
+
+
+# Stage 2
+
+## Suggested Database
+
+I would use PostgreSQL as the primary database because:
+
+- Strong ACID compliance
+- Reliable transactions
+- Efficient indexing
+- Good scalability
+- Suitable for relational notification data
+
+---
+
+## Database Schema
+
+### users
+
+| Column | Type |
+|---|---|
+| id | UUID |
+| name | VARCHAR |
+| email | VARCHAR |
+| created_at | TIMESTAMP |
+
+### notifications
+
+| Column | Type |
+|---|---|
+| id | UUID |
+| user_id | UUID |
+| type | ENUM(Event, Result, Placement) |
+| title | VARCHAR |
+| message | TEXT |
+| is_read | BOOLEAN |
+| created_at | TIMESTAMP |
+
+---
+
+## Important Indexes
+
+```sql
+CREATE INDEX idx_notifications_user
+ON notifications(user_id);
+
+CREATE INDEX idx_notifications_read
+ON notifications(is_read);
+
+CREATE INDEX idx_notifications_created
+ON notifications(created_at);
