@@ -205,3 +205,18 @@ def email_worker(job):
 
     except Exception:
         retry_job(job)
+
+
+# Stage 6
+
+## Priority Inbox Design
+
+The system prioritizes unread notifications using:
+
+1. Notification type weight
+2. Recency score
+
+Priority order:
+
+```text
+Placement > Result > Event
